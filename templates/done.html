@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Thank you!</h1>
-<p>Your labels have been recorded. They are stored with your participant ID and will be used
-only for analysis in CSE 594.</p>
-<p>You can close this tab, or <a href="{{ url_for('index') }}">label another set</a>.</p>
+<h1>Thank you</h1>
+<p class="lede">Your labels have been recorded.</p>
+<div class="card">
+  <p style="margin:0">They are stored against your participant ID and used only for research
+  analysis. You can close this tab, or <a href="{{ url_for('index') }}">label another set</a>.</p>
+</div>
 {% endblock %}

@@ -8,7 +8,7 @@ import app as A  # noqa: E402
 
 def rows():
     with A.db() as con:
-        return con.execute("SELECT participant_id, tweet_id, label, gold_label FROM labels").fetchall()
+        return con.execute("SELECT participant_id, tweet_id, label, gold_label, ambiguous FROM labels").fetchall()
 
 
 def run(pid, c, bad=False):
@@ -16,6 +16,7 @@ def run(pid, c, bad=False):
     with c.session_transaction() as s:
         ids = s["tweet_ids"]
     form = {f"tweet_{i}": "joy" for i in ids}
+    form[f"amb_{ids[0]}"] = "1"          # first tweet flagged ambiguous, the rest left unticked
     if bad:
         form.pop(f"tweet_{ids[0]}")
     return ids, c.post("/submit", data=form)
@@ -23,10 +24,12 @@ def run(pid, c, bad=False):
 
 A.app.config["TESTING"] = True
 with A.app.test_client() as c:
-    assert b"Participant ID" in c.get("/").data
+    assert b"Start data labeling" in c.get("/").data   # instructions page, no ID form
+    assert b"Participant ID" in c.get("/join").data    # ID form lives on its own step
 
     # empty id is rejected
-    assert c.post("/start", data={"participant_id": " "}).status_code == 400
+    r = c.post("/start", data={"participant_id": " "})
+    assert r.status_code == 400 and b"Participant ID" in r.data
     assert rows() == []
 
     # incomplete submission writes nothing
@@ -41,6 +44,9 @@ with A.app.test_client() as c:
     assert len(got) == A.N_TWEETS and {g[0] for g in got} == {"p1"}, got
     assert sorted(g[1] for g in got) == sorted(ids1)
     assert all(g[3] in A.EMOTIONS for g in got)
+    # the ambiguity flag is optional: exactly the one ticked box is stored as 1, rest as 0
+    assert sorted(g[4] for g in got) == [0, 0, 0, 0, 1], got
+    assert [g[4] for g in got if g[1] == ids1[0]] == [1]
 
     # a second participant gets an independently sampled set
     sets = {tuple(run(f"p{n}", c)[0]) for n in range(2, 12)}

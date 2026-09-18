@@ -10,6 +10,29 @@ from datetime import datetime, timezone
 from flask import Flask, abort, redirect, render_template, request, session, url_for
 
 EMOTIONS = ["anger", "fear", "joy", "love", "sadness", "surprise"]
+
+# Worked examples for the instructions page. Written by hand rather than taken from the
+# dataset, so a participant can never be shown an example as one of their real tweets.
+EXAMPLES = [
+    ("anger", "i feel like screaming every time they send me the same useless reply",
+     "Frustration pointed outward at someone. Anger covers the whole range from mild "
+     "irritation to outrage — it does not have to be shouting."),
+    ("fear", "i keep checking my phone because i feel like something bad is about to happen",
+     "Dread about what might happen next. Fear looks forward to a threat; sadness looks back "
+     "at a loss."),
+    ("joy", "i feel so light today like everything finally clicked into place",
+     "Positive and energised, and about the situation rather than about a person — that is "
+     "what separates joy from love."),
+    ("love", "i feel so lucky to have someone who still waits up for me",
+     "Warmth aimed at a specific person. The tweet is positive, but the affection has a "
+     "target, so it is love rather than plain joy."),
+    ("sadness", "i feel completely empty since she stopped calling",
+     "Loss and low energy, turned inward. No threat ahead and nobody being blamed, which "
+     "rules out fear and anger."),
+    ("surprise", "i cannot believe they actually showed up i feel totally thrown",
+     "Being caught off guard. Surprise can be pleasant or unpleasant — it is about the jolt, "
+     "not about whether the news was good."),
+]
 N_TWEETS = 5
 TWEETS = {t["id"]: t for t in json.load(open("tweets.json"))}
 
@@ -26,21 +49,26 @@ def db():
     con = sqlite3.connect(DB_PATH)
     con.execute("""CREATE TABLE IF NOT EXISTS labels (
         participant_id TEXT, tweet_id INTEGER, tweet_text TEXT,
-        label TEXT, gold_label TEXT, comment TEXT, created_at TEXT)""")
+        label TEXT, gold_label TEXT, ambiguous INTEGER, comment TEXT, created_at TEXT)""")
     return con
 
 
 @app.route("/")
 def index():
     session.clear()
-    return render_template("index.html", emotions=EMOTIONS, n=N_TWEETS)
+    return render_template("index.html", emotions=EMOTIONS, n=N_TWEETS, examples=EXAMPLES)
+
+
+@app.route("/join")
+def join():
+    return render_template("join.html", n=N_TWEETS)
 
 
 @app.route("/start", methods=["POST"])
 def start():
     pid = request.form.get("participant_id", "").strip()
     if not pid:
-        return render_template("index.html", emotions=EMOTIONS, n=N_TWEETS,
+        return render_template("join.html", n=N_TWEETS,
                                error="Please enter a participant ID."), 400
     session["pid"] = pid
     session["tweet_ids"] = random.sample(list(TWEETS), N_TWEETS)
@@ -70,8 +98,9 @@ def submit():
     now = datetime.now(timezone.utc).isoformat()
     comment = request.form.get("comment", "").strip()
     with db() as con:
-        con.executemany("INSERT INTO labels VALUES (?,?,?,?,?,?,?)",
-                        [(session["pid"], i, TWEETS[i]["text"], p, TWEETS[i]["gold"], comment, now)
+        con.executemany("INSERT INTO labels VALUES (?,?,?,?,?,?,?,?)",
+                        [(session["pid"], i, TWEETS[i]["text"], p, TWEETS[i]["gold"],
+                          int(f"amb_{i}" in request.form), comment, now)
                          for i, p in zip(ids, picks)])
     session.clear()
     return redirect(url_for("done"))
@@ -97,7 +126,7 @@ def export():
     out = io.StringIO()
     w = csv.writer(out)
     w.writerow(["participant_id", "tweet_id", "tweet_text", "label", "gold_label",
-                "comment", "created_at"])
+                "ambiguous", "comment", "created_at"])
     w.writerows(rows)
     return out.getvalue(), 200, {"Content-Type": "text/csv",
                                  "Content-Disposition": "attachment; filename=labels.csv"}

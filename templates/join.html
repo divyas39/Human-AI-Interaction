@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<a class="back" href="{{ url_for('index') }}">&larr; Back to the instructions</a>
+<h1>Before you begin</h1>
+<p class="lede">One detail and you're in.</p>
+
+<div class="card">
+  <h2 style="margin-top:0">Your data</h2>
+  <p class="hint" style="margin:0">Your answers are stored against the ID you choose below and
+  used only for research analysis. Please pick a made-up ID rather than your real name — we do
+  not want to collect anything that identifies you. You can stop at any point using the
+  <em>withdraw and exit</em> link, and nothing is saved unless you submit at the end.</p>
+</div>
+
+<form method="post" action="{{ url_for('start') }}" class="card">
+  <label class="field" for="pid">Participant ID</label>
+  <input type="text" id="pid" name="participant_id" required autocomplete="off"
+         autofocus placeholder="e.g. bluejay42">
+  <p class="hint" style="margin:.5rem 0 0">Anything memorable and not your name.</p>
+  <div class="row">
+    <button type="submit">Continue to the {{ n }} tweets</button>
+  </div>
+</form>
+{% endblock %}

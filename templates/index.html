@@ -1,42 +1,82 @@
 {% extends "base.html" %}
-{% block content %}
-<h1>Tweet Emotion Labeling Study</h1>
 
-<div class="box">
-  <p><strong>What this is.</strong> A CSE 594 (Human-AI Interaction) course assignment. We are
-  collecting human emotion labels for real tweets. It takes about <strong>2 minutes</strong>.</p>
-  <p><strong>What you will do.</strong> You will see <strong>{{ n }} tweets</strong> on one page.
-  For each tweet, choose the <strong>one</strong> emotion the author is expressing.</p>
+{% block hero %}
+<div class="hero"><div>
+  <div class="swatches">
+    {% for e in emotions %}<span data-e="{{ e }}"></span>{% endfor %}
+  </div>
+  <h1>Emotion Labeling</h1>
+  <p class="lede">A short data labeling and collection task. We are building a high-quality
+  set of human judgments about how emotion comes across in everyday written speech — the kind
+  of quick, unpolished text people actually post online. Machines are still unreliable at this,
+  and the reason is simple: emotion in text is carried by context, not keywords. Careful human
+  labels are the only dependable ground truth.</p>
+</div></div>
+{% endblock %}
+
+{% block content %}
+<h2>Instructions</h2>
+<div class="card">
+  <p>You will read {{ n }} real tweets, one at a time. For each one, choose the single emotion
+  the author is expressing from the six options below, then press <b>Next</b>. After the last
+  tweet you can leave an optional comment and submit.</p>
+  <p>It takes about two minutes. Some tweets are obvious and some genuinely are not — when one
+  is unclear, give your best guess and tick <b>I wasn't sure</b> beside it. Your judgment on
+  the difficult tweets is just as valuable to us as your judgment on the easy ones, so please
+  don't skip or rush them.</p>
 </div>
 
-<h2>The {{ emotions|length }} emotion categories</h2>
-<dl>
-  <dt>anger</dt><dd>irritation, frustration, outrage — "i feel so insulted by that reply"</dd>
-  <dt>fear</dt><dd>anxiety, worry, dread — "i feel nervous about the results tomorrow"</dd>
-  <dt>joy</dt><dd>happiness, delight, contentment — "i feel so grateful for today"</dd>
-  <dt>love</dt><dd>affection, fondness, caring toward someone — "i feel so loved by my family"</dd>
-  <dt>sadness</dt><dd>unhappiness, loneliness, disappointment — "i feel empty without her"</dd>
-  <dt>surprise</dt><dd>shock, amazement, being caught off guard — "i feel stunned it worked"</dd>
-</dl>
+<h2>The {{ emotions|length }} emotions</h2>
+<div class="card">
+  <dl>
+    <div data-e="anger"><dt>anger</dt><dd>irritation, frustration, outrage</dd></div>
+    <div data-e="fear"><dt>fear</dt><dd>anxiety, worry, dread</dd></div>
+    <div data-e="joy"><dt>joy</dt><dd>happiness, delight, contentment</dd></div>
+    <div data-e="love"><dt>love</dt><dd>affection, fondness, caring toward someone</dd></div>
+    <div data-e="sadness"><dt>sadness</dt><dd>unhappiness, loneliness, disappointment</dd></div>
+    <div data-e="surprise"><dt>surprise</dt><dd>shock, amazement, being caught off guard</dd></div>
+  </dl>
+</div>
+
+<h2>One worked example of each</h2>
+{% for emotion, text, why in examples %}
+<div class="card ex" data-e="{{ emotion }}">
+  <span class="pill">{{ emotion }}</span>
+  <q>{{ text }}</q>
+  <p class="why">{{ why }}</p>
+</div>
+{% endfor %}
 
 <h2>How to choose</h2>
-<ul>
-  <li>Label the emotion <em>the author</em> is expressing, not how the tweet makes you feel.</li>
-  <li>There is no scored right answer and you are not being graded — emotion is genuinely
-  ambiguous, so pick the closest fit even when none is perfect.</li>
-  <li>You can change any answer until you press submit.</li>
-  <li>If a tweet is truly ambiguous or none of the six fit, say so in the comment box at the
-  end — that feedback is useful to us.</li>
-</ul>
+<div class="card">
+  <ul class="rules">
+    <li>Label the emotion <b>the author</b> is expressing, not how the tweet makes you feel.</li>
+    <li>There is no scored right answer and you are not being tested — pick the closest fit
+    even when none is perfect.</li>
+    <li>Not sure? Choose your best guess and tick <b>I wasn't sure</b> next to it. That flag is
+    useful data, not a penalty.</li>
+    <li>You can go back and change an answer before you submit.</li>
+  </ul>
+</div>
 
-<h2>Your data</h2>
-<p>Your answers are stored with the ID you type below and used only for analysis in this
-course. Please use a made-up ID rather than your real name. You may stop at any point using
-the <em>withdraw and exit</em> link; nothing is saved unless you submit.</p>
+<h2>Tips for accurate labels</h2>
+<div class="card">
+  <ul class="rules">
+    <li><b>Follow where the feeling points.</b> Aimed at a person with warmth → love; aimed at
+    someone with heat → anger; aimed at the situation → joy or sadness.</li>
+    <li><b>Check the direction in time.</b> Fear is about something that might happen; sadness
+    is about something that already did.</li>
+    <li><b>Surprise is about the jolt, not the outcome.</b> Good news can be surprise too.</li>
+    <li><b>Don't hunt for sarcasm.</b> Take the plainest reading unless the tweet clearly
+    signals otherwise.</li>
+    <li><b>Ignore the vocabulary, read the feeling.</b> A tweet can express fear without ever
+    using the word "afraid".</li>
+    <li><b>Go with your first instinct.</b> Re-reading a tweet five times rarely makes it
+    clearer — label it and flag it as unsure.</li>
+  </ul>
+</div>
 
-<form method="post" action="{{ url_for('start') }}">
-  <p><label for="pid"><strong>Participant ID</strong></label><br>
-  <input type="text" id="pid" name="participant_id" required autofocus></p>
-  <button type="submit">Start labeling</button>
-</form>
+<div class="row">
+  <a class="btn" href="{{ url_for('join') }}">Start data labeling</a>
+</div>
 {% endblock %}

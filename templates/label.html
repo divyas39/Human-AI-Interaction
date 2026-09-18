@@ -1,30 +1,103 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Label these {{ tweets|length }} tweets</h1>
-<div class="box">For each tweet, choose the <strong>one</strong> emotion
-<em>the author</em> is expressing. All {{ tweets|length }} are required. You can change any
-answer until you submit.</div>
-
 <form method="post" action="{{ url_for('submit') }}">
-  {% for t in tweets %}
-  <div class="tweet">
-    <fieldset style="border:0;padding:0;margin:0">
-      <legend style="padding:0"><strong>Tweet {{ loop.index }} of {{ tweets|length }}</strong></legend>
-      <p>{{ t.text }}</p>
-      <div class="options">
-        {% for e in emotions %}
-        <label class="opt"><input type="radio" name="tweet_{{ t.id }}" value="{{ e }}" required> {{ e }}</label>
-        {% endfor %}
-      </div>
-    </fieldset>
+  <div class="progress">
+    <span id="counter">Tweet 1 of {{ tweets|length }}</span>
+    <span class="bar"><i id="fill" style="width:{{ 100 // tweets|length }}%"></i></span>
   </div>
+
+  {% for t in tweets %}
+  <fieldset class="card step{% if loop.first %} active{% endif %}" data-step="{{ loop.index0 }}"
+            style="border:0;margin:0;padding:1.4rem 1.5rem">
+    <legend class="field" style="padding:0">Which emotion is the author expressing?</legend>
+    <p class="tweet-text">{{ t.text }}</p>
+
+    <div class="options">
+      {% for e in emotions %}
+      <label class="opt" data-e="{{ e }}"><input type="radio" name="tweet_{{ t.id }}" value="{{ e }}" required> {{ e }}</label>
+      {% endfor %}
+    </div>
+
+    <label class="ambiguous">
+      <input type="checkbox" name="amb_{{ t.id }}" value="1">
+      I wasn't sure — this tweet felt ambiguous
+    </label>
+  </fieldset>
   {% endfor %}
 
-  <p><label for="comment">Anything confusing or ambiguous? (optional)</label><br>
-  <textarea id="comment" name="comment" rows="3"></textarea></p>
+  <div class="card step" data-step="{{ tweets|length }}">
+    <label class="field" for="comment">Anything confusing about these tweets? (optional)</label>
+    <textarea id="comment" name="comment" rows="3"
+              placeholder="e.g. tweet 3 could have been two different emotions"></textarea>
+    <p class="hint">This is the last step — submitting saves all {{ tweets|length }} of your labels.</p>
+  </div>
 
-  <button type="submit">Submit my labels</button>
+  <div class="row">
+    <button type="button" class="ghost" id="back" hidden>Back</button>
+    <button type="button" id="next">Next</button>
+    <button type="submit" id="send" hidden>Submit my labels</button>
+  </div>
 </form>
+
+<dialog id="incomplete">
+  <h3>Not finished yet</h3>
+  <p class="hint" id="incomplete-msg"></p>
+  <div class="row">
+    <button type="button" id="goto">Go to that tweet</button>
+    <button type="button" class="ghost" id="dismiss">Close</button>
+  </div>
+</dialog>
+
+<script>
+  document.body.classList.add('js');           /* no JS: every step stays visible, still submits */
+  const steps = [...document.querySelectorAll('.step')];
+  const [back, next, send] = ['back', 'next', 'send'].map(id => document.getElementById(id));
+  let at = 0;
+
+  const chosen = i => !steps[i].querySelector('input[type=radio]')
+                   || steps[i].querySelector('input[type=radio]:checked');
+
+  function show(i) {
+    at = i;
+    steps.forEach((s, n) => s.classList.toggle('active', n === i));
+    const last = i === steps.length - 1;
+    back.hidden = i === 0;
+    next.hidden = last;
+    send.hidden = !last;
+    next.disabled = !chosen(i);
+    counter.textContent = last ? 'Almost done' : `Tweet ${i + 1} of ${steps.length - 1}`;
+    fill.style.width = (i + 1) / steps.length * 100 + '%';
+    window.scrollTo({ top: 0 });
+  }
+
+  next.onclick = () => chosen(at) && show(at + 1);
+  back.onclick = () => show(at - 1);
+
+  /* Submitting with a tweet still unlabelled: the native "required" bubble can't point at a
+     hidden step, so turn validation off and say it ourselves. */
+  const form = document.querySelector('form');
+  const dlg = document.getElementById('incomplete');
+  let firstMissing = 0;
+  form.noValidate = true;
+  form.addEventListener('submit', e => {
+    const missing = steps.map((_, i) => i).filter(i => !chosen(i));
+    if (!missing.length) return;
+    e.preventDefault();
+    firstMissing = missing[0];
+    const n = missing.length;
+    document.getElementById('incomplete-msg').textContent =
+      `${n} of the ${steps.length - 1} tweets ${n === 1 ? 'is' : 'are'} still unlabelled `
+      + `(starting with tweet ${firstMissing + 1}). Please label every tweet before submitting.`;
+    dlg.showModal();
+  });
+  document.getElementById('goto').onclick = () => { dlg.close(); show(firstMissing); };
+  document.getElementById('dismiss').onclick = () => dlg.close();
+  /* picking an emotion unlocks Next; the ambiguity checkbox stays optional */
+  document.addEventListener('change', e => {
+    if (e.target.type === 'radio') next.disabled = !chosen(at);
+  });
+  show(0);
+</script>
 {% endblock %}
 {% block footer %}<a href="{{ url_for('withdraw') }}">Withdraw and exit</a> — nothing you have
 entered will be saved.{% endblock %}
