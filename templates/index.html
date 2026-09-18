@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Tweet Emotion Labeling Study</h1>
+
+<div class="box">
+  <p><strong>What this is.</strong> A CSE 594 (Human-AI Interaction) course assignment. We are
+  collecting human emotion labels for real tweets. It takes about <strong>2 minutes</strong>.</p>
+  <p><strong>What you will do.</strong> You will see <strong>{{ n }} tweets</strong> on one page.
+  For each tweet, choose the <strong>one</strong> emotion the author is expressing.</p>
+</div>
+
+<h2>The {{ emotions|length }} emotion categories</h2>
+<dl>
+  <dt>anger</dt><dd>irritation, frustration, outrage — "i feel so insulted by that reply"</dd>
+  <dt>fear</dt><dd>anxiety, worry, dread — "i feel nervous about the results tomorrow"</dd>
+  <dt>joy</dt><dd>happiness, delight, contentment — "i feel so grateful for today"</dd>
+  <dt>love</dt><dd>affection, fondness, caring toward someone — "i feel so loved by my family"</dd>
+  <dt>sadness</dt><dd>unhappiness, loneliness, disappointment — "i feel empty without her"</dd>
+  <dt>surprise</dt><dd>shock, amazement, being caught off guard — "i feel stunned it worked"</dd>
+</dl>
+
+<h2>How to choose</h2>
+<ul>
+  <li>Label the emotion <em>the author</em> is expressing, not how the tweet makes you feel.</li>
+  <li>There is no scored right answer and you are not being graded — emotion is genuinely
+  ambiguous, so pick the closest fit even when none is perfect.</li>
+  <li>You can change any answer until you press submit.</li>
+  <li>If a tweet is truly ambiguous or none of the six fit, say so in the comment box at the
+  end — that feedback is useful to us.</li>
+</ul>
+
+<h2>Your data</h2>
+<p>Your answers are stored with the ID you type below and used only for analysis in this
+course. Please use a made-up ID rather than your real name. You may stop at any point using
+the <em>withdraw and exit</em> link; nothing is saved unless you submit.</p>
+
+<form method="post" action="{{ url_for('start') }}">
+  <p><label for="pid"><strong>Participant ID</strong></label><br>
+  <input type="text" id="pid" name="participant_id" required autofocus></p>
+  <button type="submit">Start labeling</button>
+</form>
+{% endblock %}

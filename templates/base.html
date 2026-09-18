@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tweet Emotion Labeling Study</title>
+<style>
+  body { font: 16px/1.55 system-ui, sans-serif; max-width: 44rem; margin: 2rem auto;
+         padding: 0 1rem; color: #1a1a1a; }
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.1rem; margin-top: 1.8rem; }
+  .box { background: #f4f6f8; border-radius: 8px; padding: 1rem 1.2rem; }
+  .tweet { border: 1px solid #d5dae0; border-radius: 8px; padding: 1rem; margin: 1.2rem 0; }
+  .tweet p { font-size: 1.1rem; margin: .2rem 0 .9rem; }
+  .options { display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; }
+  label.opt { display: inline-flex; align-items: center; gap: .35rem; }
+  .err { background: #fde8e8; border-left: 4px solid #c0392b; padding: .7rem 1rem; }
+  button { font-size: 1rem; padding: .6rem 1.4rem; border: 0; border-radius: 6px;
+           background: #2c5fa8; color: #fff; cursor: pointer; }
+  input[type=text], textarea { font: inherit; padding: .5rem; width: 100%;
+           border: 1px solid #b9c0c8; border-radius: 6px; }
+  footer { margin-top: 2.5rem; font-size: .85rem; color: #666; }
+  dl dt { font-weight: 600; margin-top: .5rem; }
+  dl dd { margin: 0 0 0 1rem; }
+</style>
+</head>
+<body>
+{% if error %}<p class="err">{{ error }}</p>{% endif %}
+{% block content %}{% endblock %}
+<footer>{% block footer %}{% endblock %}</footer>
+</body>
+</html>
