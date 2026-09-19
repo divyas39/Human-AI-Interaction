@@ -31,11 +31,21 @@ participants. Note it down; every `<username>` below is that name.
 **Consoles** tab → **Bash**. Then:
 ```sh
 git clone https://github.com/divyas39/Human-AI-Interaction.git
-mkvirtualenv --python=/usr/bin/python3.11 study
+mkvirtualenv study --python=/usr/bin/python3.10
 pip install flask
 ```
 `mkvirtualenv` leaves the new virtualenv active and named `study`. If the repo is private, use a
 GitHub personal access token as the password when prompted.
+
+**Do not use Python 3.11 here** — that build is broken on PythonAnywhere and `pip` dies with
+`ModuleNotFoundError: No module named '_posixsubprocess'`. 3.10 is what PythonAnywhere's own
+docs use. To see what else is available: `ls /usr/bin/python3.* /usr/local/bin/python3.* | grep -v config`.
+Whichever you pick, **choose the same version for the web app in step 3.**
+
+*Simpler alternative:* Flask comes preinstalled in PythonAnywhere's system Python, so you can
+skip the virtualenv entirely — leave the Virtualenv field blank in step 4 and this app needs
+nothing else installed. Only `flask` is required at runtime; `gunicorn` in `requirements.txt` is
+for other hosts.
 
 ## 3. Create the web app
 **Web** tab → **Add a new web app** → **Manual configuration** (*not* the "Flask" option — that
@@ -48,7 +58,7 @@ On the Web tab, set:
 |---|---|
 | Source code | `/home/<username>/Human-AI-Interaction` |
 | Working directory | `/home/<username>/Human-AI-Interaction` |
-| Virtualenv | `/home/<username>/.virtualenvs/study` |
+| Virtualenv | `/home/<username>/.virtualenvs/study` (leave blank if you skipped it) |
 
 ## 5. The WSGI file
 On the Web tab, click the **WSGI configuration file** link. Delete everything in it and paste
@@ -91,6 +101,8 @@ curl "https://<username>.pythonanywhere.com/export?token=<EXPORT_TOKEN>" -o labe
    print `403`. Without the token nobody can read participant data.
 
 ## Troubleshooting
+- **`pip` fails with `No module named '_posixsubprocess'`** → the virtualenv was built from a
+  broken interpreter (3.11). `rmvirtualenv study`, then recreate it with `--python=/usr/bin/python3.10`.
 - **500 error** → Web tab → **Error log**. A `ModuleNotFoundError: flask` means the virtualenv
   path in step 4 is wrong; a `FileNotFoundError` means the source-code path is.
 - **Site shows "Hello from Flask!"** → you picked the Flask option in step 3 instead of Manual
