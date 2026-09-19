@@ -1,5 +1,7 @@
 """Self-check: python test_app.py"""
 import os
+import subprocess
+import sys
 import tempfile
 
 os.environ["DB_PATH"] = os.path.join(tempfile.mkdtemp(), "test.db")
@@ -65,4 +67,14 @@ with A.app.test_client() as c:
 
 assert len(A.TWEETS) >= 50, len(A.TWEETS)
 assert {t["gold"] for t in A.TWEETS.values()} == set(A.EMOTIONS)
+
+# A WSGI server (PythonAnywhere) imports the app from a different working directory.
+# Anything resolved relative to the cwd blows up there with a 500 before any route runs.
+here = os.path.dirname(os.path.abspath(__file__))
+probe = subprocess.run(
+    [sys.executable, "-c",
+     f"import sys; sys.path.insert(0, {here!r}); import app;"
+     " assert len(app.TWEETS) >= 50; assert app.DB_PATH.startswith('/')"],
+    cwd="/", capture_output=True, text=True)
+assert probe.returncode == 0, f"app is not importable from another cwd:\n{probe.stderr}"
 print("ok")

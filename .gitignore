@@ -1,3 +1,4 @@
 personal/
 labels.db
 __pycache__/
+.env.study

@@ -3,6 +3,7 @@ import csv
 import io
 import json
 import os
+import pathlib
 import random
 import sqlite3
 from datetime import datetime, timezone
@@ -34,15 +35,26 @@ EXAMPLES = [
      "not about whether the news was good."),
 ]
 N_TWEETS = 5
-TWEETS = {t["id"]: t for t in json.load(open("tweets.json"))}
 
-# ponytail: SQLite on an ephemeral host disk is wiped on redeploy. Point DB_PATH at a
-# mounted volume, or move to Postgres, if the study runs on more than a handful of people.
-DB_PATH = os.environ.get("DB_PATH", "labels.db")
+# Everything is resolved against this file, never the working directory: a WSGI server
+# (PythonAnywhere, gunicorn under a supervisor) runs the app from somewhere else entirely.
+HERE = pathlib.Path(__file__).resolve().parent
+TWEETS = {t["id"]: t for t in json.loads((HERE / "tweets.json").read_text())}
+
+# In production point DB_PATH outside the checkout, so a git pull can never touch collected
+# data. ponytail: one SQLite file assumes one worker process -- fine here, and the free
+# PythonAnywhere tier gives exactly one. Move to Postgres before adding workers.
+DB_PATH = os.environ.get("DB_PATH", str(HERE / "labels.db"))
 EXPORT_TOKEN = os.environ.get("EXPORT_TOKEN", "dev-token")
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret")
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    # the cookie carries the participant's assigned tweet ids; HTTPS_ONLY=1 in production
+    SESSION_COOKIE_SECURE=os.environ.get("HTTPS_ONLY") == "1",
+)
 
 
 def db():
