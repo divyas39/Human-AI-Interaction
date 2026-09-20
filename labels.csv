@@ -1,0 +1,16 @@
+participant_id,tweet_id,tweet_text,label,gold_label,ambiguous,comment,created_at
+DeployTest,90,i was ready to meet mom in the airport and feel her ever supportive arms around me,love,love,0,,2026-09-19T16:59:56.786696+00:00
+DeployTest,26,i feel so inhibited in someone elses kitchen like im painting on someone elses picture,fear,sadness,1,,2026-09-19T16:59:56.786696+00:00
+DeployTest,32,i have seen heard and read over the past couple of days i am left feeling impressed by more than a few companies,surprise,surprise,0,,2026-09-19T16:59:56.786696+00:00
+DeployTest,145,i started feeling funny and then friday i woke up sick as a dog,sadness,surprise,0,,2026-09-19T16:59:56.786696+00:00
+DeployTest,29,i feel more superior dead chicken or grieving child,anger,joy,1,,2026-09-19T16:59:56.786696+00:00
+Roommate,1,i can go from feeling so hopeless to so damned hopeful just from being around someone who cares and is awake,love,sadness,0,Some of them were confusing .,2026-09-19T17:06:35.270754+00:00
+Roommate,89,i will be able to lay on my bed in the dark and not feel terrified at least for a while,fear,fear,1,Some of them were confusing .,2026-09-19T17:06:35.270754+00:00
+Roommate,34,i can t imagine a real life scenario where i would be emotionally connected enough with someone to feel totally accepted and safe where it it morally acceptable for me to have close and prolonged physical contact and where sex won t be expected subsequently,sadness,joy,0,Some of them were confusing .,2026-09-19T17:06:35.270754+00:00
+Roommate,52,i feel selfish and spoiled,anger,anger,1,Some of them were confusing .,2026-09-19T17:06:35.270754+00:00
+Roommate,24,i already feel like i fucked up though because i dont usually eat at all in the morning,anger,anger,0,Some of them were confusing .,2026-09-19T17:06:35.270754+00:00
+sorry_shady,68,i suppose my own truth needs to be shared i havent been feeling very faithful lately ive dwelled more in doubt and uncertainty than i have in faith,sadness,love,0,,2026-09-20T08:49:38.823835+00:00
+sorry_shady,26,i feel so inhibited in someone elses kitchen like im painting on someone elses picture,sadness,sadness,0,,2026-09-20T08:49:38.823835+00:00
+sorry_shady,21,i am feeling completely overwhelmed i have two strategies that help me to feel grounded pour my heart out in my journal in the form of a letter to god and then end with a list of five things i am most grateful for,fear,fear,0,,2026-09-20T08:49:38.823835+00:00
+sorry_shady,129,i too feel as if i am a stranger in a strange land and i am raising my son in a place that is not his father s ancestral home,surprise,surprise,0,,2026-09-20T08:49:38.823835+00:00
+sorry_shady,14,i have immense sympathy with the general point but as a possible proto writer trying to find time to write in the corners of life and with no sign of an agent let alone a publishing contract this feels a little precious,surprise,joy,0,,2026-09-20T08:49:38.823835+00:00
